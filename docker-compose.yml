@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  tasks_md:
+    image: baldissaramatheus/tasks.md
+    hostname: tasks.md
+    user: "1000:1000"
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TITLE: Noted Tasks
+      APP_BASE_URL: https://www.po1.me/tasks
+      LOCAL_IMAGES_CLEANUP_INTERVAL: 144
+    volumes:
+      - /mnt/gluster_volume/docker_volume/tasks/tasks:/tasks
+      - /mnt/gluster_volume/docker_volume/tasks/config:/config
+    ports:
+      - "3333:80"
+    networks:
+      - traefik-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3333 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  traefik-net:
+    external: true
